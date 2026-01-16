@@ -1,6 +1,6 @@
 package com.harry.jobservice.jobs;
 
-import org.springframework.data.jpa.repository.JpaRepository;;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 //Gives access to database CRUD operations for JobEntity
 //e.g., save(), findById(), findAll(), delete(), etc.
