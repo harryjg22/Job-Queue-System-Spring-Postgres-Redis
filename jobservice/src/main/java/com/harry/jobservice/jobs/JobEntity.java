@@ -70,5 +70,8 @@ public class JobEntity {
     public void incrementAttempts() {
         this.attempts++;
     }
+    public void setAttempts(int attempts) {
+        this.attempts = attempts;
+    }
 
 }
