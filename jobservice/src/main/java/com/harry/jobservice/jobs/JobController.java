@@ -60,5 +60,23 @@ public class JobController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
+    @PostMapping("{id}/requeue")
+    public ResponseEntity<Void> requeueJob(@PathVariable String id) {
+        // Check if job exists
+        if (!jobRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        JobEntity job = jobRepository.findById(id).get();
+        // Update job status to PENDING
+        job.setStatus(JobStatus.PENDING);
+        jobRepository.save(job);
+
+        // Add job ID to Redis queue
+        redisTemplate.opsForList().rightPush("queue:jobs", id);
+
+        // Return 200 OK response
+        return ResponseEntity.ok().build();
+    }
 }
