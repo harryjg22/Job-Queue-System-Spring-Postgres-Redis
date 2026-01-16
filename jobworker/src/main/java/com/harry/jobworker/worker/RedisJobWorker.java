@@ -6,7 +6,7 @@ import com.harry.jobworker.jobs.JobRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory; // Importing RedisConnectionFactory for Redis connections
-import org.springframework.stereotype.Component;\
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 
