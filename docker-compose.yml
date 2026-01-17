@@ -17,5 +17,33 @@ services:
     ports:
       - "6379:6379"
 
+  jobservice:
+    build: ./jobservice
+    container_name: jobservice_app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jobdb
+      SPRING_DATASOURCE_USERNAME: jobuser
+      SPRING_DATASOURCE_PASSWORD: jobpass
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    depends_on:
+      - postgres
+      - redis
+
+  jobworker:
+    build: ./jobworker
+    container_name: jobworker_app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jobdb
+      SPRING_DATASOURCE_USERNAME: jobuser
+      SPRING_DATASOURCE_PASSWORD: jobpass
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    depends_on:
+      - postgres
+      - redis
+
 volumes:
   jobservice_pgdata:
