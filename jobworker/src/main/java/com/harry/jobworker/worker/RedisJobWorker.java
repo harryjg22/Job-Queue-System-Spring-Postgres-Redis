@@ -60,16 +60,9 @@ public class RedisJobWorker implements CommandLineRunner{ // Tells spring to run
                                                                    // In case redis returns null (no job) or the result size is less than 2, we skip processing
                 String jobId = new String(result.get(1), StandardCharsets.UTF_8); // Convert the job ID from bytes to string using UTF-8 encoding
 
-                int claimed = jobRepository.claimJob(jobId); // Try to claim the job atomically in the database
-                                                        // If another worker has already claimed it, claimed will be 0
-                if(claimed == 0){
-                    System.out.println("Job " + jobId + " was already claimed by another worker, skipping...");
-                    continue; // If the job was not claimed (another worker took it), skip processing
-                }
-
                 // Lookup the job in PostgreSQL and process it
                 // if it does not exist, we just ignore it
-                jobRepository.findById(jobId).ifPresent(this::processJobClaimed);
+                jobRepository.findById(jobId).ifPresent(this::processJob);
 
             } catch (Exception e) {
                 System.out.println("Worker Error: " + e.getMessage());
@@ -86,9 +79,13 @@ public class RedisJobWorker implements CommandLineRunner{ // Tells spring to run
 
 
     // Process a job by updating its status and simulating work
-    public void processJobClaimed(JobEntity job){
+    public void processJob(JobEntity job){
         try{
             
+            // Only start if status is still pending
+            if(job.getStatus() != JobStatus.PENDING){
+                return;
+            }
             
             job.setStatus(JobStatus.IN_PROGRESS); // Update job status to RUNNING
             jobRepository.save(job); // Save the updated job status to the database
@@ -108,10 +105,8 @@ public class RedisJobWorker implements CommandLineRunner{ // Tells spring to run
 
             Thread.sleep(1500); // Simulate job processing (doing work) time (1.5 seconds)
 
-            int updated = jobRepository.completeJob(job.getId()); // Update job status to COMPLETED in the database
-            if(updated == 0){
-                System.out.println("Job " + job.getId() + " could not be marked as COMPLETED, it may have been modified concurrently.");
-            }
+            job.setStatus(JobStatus.COMPLETED); // Update job status to COMPLETED
+            jobRepository.save(job); // Save the updated job status to the database
 
             System.out.println("Processed job: " + job.getId() + "-> COMPLETED"); // Log the processed job ID
         } catch (Exception e){
