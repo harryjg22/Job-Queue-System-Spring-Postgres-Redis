@@ -1,3 +1,35 @@
+# Project Overview
+This project simulates how real companies handle important work in the background instead of making users wait. Think of actions like sending a confirmation email, processing a payment, generating a video thumbnail, or syncing data between systems. In real life, those tasks can take time or fail temporarily (network issues, service outages, rate limits), so they’re usually handled asynchronously and reliably.
+
+## System Flow
+1. A request comes in (i.e., "Create a job to do X")
+2. The job is **stored and tracked** so its status can be checked later
+3. The job is placed into a work queue so it can be processed in the background
+4. A worker service continuously pulls jobs from the queue and performs the work
+5. If a job fails due to a temporaru issue, it is automatically retried with increasing delays
+6. If a job fails too many times, it is moved to a Dead Letter Queue (DLQ) so it's not lost and can be reviewed or fixed later
+
+## Knowledge Demonstrated
+**This project is built to show an understanding of:**
+- Asynchronous Processing (doing work in the background without blocking the main app)
+- Reliable Job Execution (tracking status, handling crashes and transient failures)
+- Retry and Backoff Strategies (re-attempting failed jobs safely with a delay time instead of spamming retries)
+- Dead Letter Queues (capturing permanent failures for visibility and recovery
+- Microservice-Style Separation of Concerns (API service vs worker service)
+- Using Real Infrastructure tools:
+  - Redis - Queue and Retry Scheduling
+  - PostgreSQL - Job Persistence and Status Tracking
+
+## Real-World Systems
+This project's architecture is commonly used for:
+- Email/SMS Notifications (send later, retry on provider failures)
+- Payment and Billing Workflows (retry safely without double-charging)
+- Media Processing (thumbnails/transcoding in the background)
+- Data Sync / ETL (retry when third-party APIs are down)
+- Order Fulfillment Steps (reserve inventory, shipping label generation)
+
+This project is a simplified but realistic model of how production systems keep background work fast, reliable, and observable even when things fail
+
 # Job Queue System (Spring Boot + Redis + Postgres)
 
 ### Simple, production-style **job queue** built with:
@@ -110,6 +142,10 @@ HTTP Requests:
   - `docker exec -it jobservice_redis redis-cli LLEN deadletter:jobs`
 - DLQ contents
   - `docker exec -it jobservice_redis redis-cli LRANGE deadletter:jobs 0 -1`
+
+
+ ### Disclaimer
+ Gen AI assisted me with the creation of this project and its source code
 
 
 
